@@ -28,7 +28,7 @@ jobs:
       run: |
         scp -r $(pwd)/* ${{ secrets.AWS_USERNAME }}@${{ secrets.AWS_HOST }}:/home/${{ secrets.AWS_USERNAME }}/app/
         ssh ${{ secrets.AWS_USERNAME }}@${{ secrets.AWS_HOST }} '
-          sudo cd /var/www/fastapi-book-project
+          cd /var/www/fastapi-book-project
           sudo git fetch origin main
           sudo git reset --hard origin/main
           docker build -t fastapi-app .
