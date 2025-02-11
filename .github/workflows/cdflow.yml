@@ -1,0 +1,37 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Deploy to EC2
+      run: |
+        scp -r $(pwd)/* ${{ secrets.AWS_USERNAME }}@${{ secrets.AWS_HOST }}:/home/${{ secrets.AWS_USERNAME }}/app/
+        ssh ${{ secrets.AWS_USERNAME }}@${{ secrets.AWS_HOST }} '
+          cd /home/${{ secrets.AWS_USERNAME }}/app
+          docker build -t fastapi-app .
+          docker stop fastapi-container || true
+          docker rm fastapi-container || true
+          docker run -d --name fastapi-container -p 8000:8000 fastapi-app
+          sudo systemctl restart nginx
+        '
