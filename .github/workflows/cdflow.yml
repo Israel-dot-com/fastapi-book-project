@@ -28,7 +28,9 @@ jobs:
       run: |
         scp -r $(pwd)/* ${{ secrets.AWS_USERNAME }}@${{ secrets.AWS_HOST }}:/home/${{ secrets.AWS_USERNAME }}/app/
         ssh ${{ secrets.AWS_USERNAME }}@${{ secrets.AWS_HOST }} '
-          cd /home/${{ secrets.AWS_USERNAME }}/app
+          sudo -i
+          sudo /var/www/fastapi-book-project
+          sudo git pull
           docker build -t fastapi-app .
           docker stop fastapi-container || true
           docker rm fastapi-container || true
