@@ -11,7 +11,7 @@ db = InMemoryDB()
 db.books = {
     1: Book(
         id=1,
-        title="Theee Hobbit",
+        title="The Hobbit",
         author="J.R.R. Tolkien",
         publication_year=1937,
         genre=Genre.SCI_FI,
@@ -54,7 +54,7 @@ async def get_book(book_id: int) -> Book:
     if not book:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content={"detail": f"Book with id {book_id} not found"}
+            content="404 Not Found"
         )
     return JSONResponse(
         status_code=status.HTTP_200_OK,
